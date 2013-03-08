@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        cat.slot.counter development page
+    </title>
+    <script type="text/javascript" src="jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="jquery.catCounter-0.1.js"></script>
+
+</head>
+<body>
+
+    <div class="container-1">
+        <span class="counter">
+            1234567890
+        </span>
+    </div>
+
+    <div class="container-2">
+        <span class="counter">
+               9876 543210
+        </span>
+    </div>
+
+    <script type="text/javascript">
+        $('.container-1 .counter').catCounter({test: 'test'}).addClass('parsed');
+        $('.container-2 .counter').catCounter({test3: 'test3'}).addClass('parsed');
+    </script>
+</body>
+</html>
