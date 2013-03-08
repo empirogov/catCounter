@@ -33,6 +33,9 @@ Plugin styles
 .catCounter__decimalPlace > span {
     display: inline-block;
     position: relative;
+
+    width: 27px; /* temp */
+    height: 60px; /* temp */
 }
 
 /* CSS animation */
