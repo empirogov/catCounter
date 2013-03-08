@@ -15,6 +15,7 @@ Plugin styles
 .catCounter {
     display: inline-block;
     overflow: hidden;
+    white-space: nowrap;
 
     height: 60px; /*temp*/
 
@@ -24,7 +25,9 @@ Plugin styles
     display: inline-block;
     overflow: hidden;
     position: relative;
-    width: 30px; /* temp */
+    white-space: normal;
+
+    width: 27px; /* temp */
 }
 
 .catCounter__decimalPlace > span {
