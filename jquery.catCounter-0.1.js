@@ -1,15 +1,21 @@
+//noinspection ThisExpressionReferencesGlobalObjectJS
 /**
  * IIFE, expanding prototype of jQuery with catCounter method
+ * @function
  * @param {Object} $ Generic jQuery object
  * @param {Object} window Topmost context of code execution
  * @param {undefined} undefined Obviously undefined parameter
  */
 (function($, window, undefined){
 
+    /**
+     * @namespace catCounter plugin execution namespace
+     * @constructor
+     */
     $.fn.catCounter = function (options) {
         $.fn.catCounter.catCounterStartTime = new Date();
 
-        options = $.fn.catCounter.expandOptions.apply(options);
+        options = $.extend({}, $.fn.catCounter._defaults, options, $.fn.catCounter.checkCSSSupport());
         console.log(options);
 
         return $(this).each(function () {
@@ -23,43 +29,29 @@
     /****************************************************************************************************************/
 
     /**
-     * Extends empty object with default plugin options and passed as context user-given options,
-     * also passes to options results of required browser features detection
-     * @return {Object}
+     * Fictive class for documenting plugin options hierarchy
+     * @class
+     * @name Options
+     * @property {String} counterClassName  Class name for top-level HTMLElement of single catCounter instance
+     * @property {String} digitClassName    Class name for decimal place wrapper HTMLElement
+     * @property {Number} listenerInterval  Interval (in ms) of checks for original counter value changes
+     * @property {boolean} useTimeProfiler  Defines if catCounter logs timings of code execution in browser console
+     * @property {boolean} ascendingOrder   Vertical order of digits (from top): ascending (true) or descending (false)
+     * @property {boolean} showAllDigits    Appearance of leading zero-value digits: zero (true) or blank space (false)
+     * @private
+     * @memberOf $.fn.catCounter
      */
-    $.fn.catCounter.expandOptions = function () {
-        /*************************************************************************************************************
-         * Default options for catCounter plugin
-         * @type {Object}
-         */
-        var defaults = {
-            /**
-             * @type {String} Class name for top-level HTMLElement of single catCounter instance
-             */
-            _counterClassName: 'catCounter',
-            /**
-             * @type {String} Class name for decimal place wrapper HTMLElement
-             */
-            _digitClassName: 'catCounter__decimalPlace',
-            /**
-             * @type {Number} Interval (in ms) of checks for original counter value changes
-             */
-            _listenerInterval: 500,
-            /**
-             * @type {boolean} Log in console timings of code execution
-             */
-            _useTimeProfiler: false,
-            /**
-             * @type {boolean} Vertical order of digits from top to down: ascending (true) or descending (false)
-             */
-            ascendingOrder: true,
-            /**
-             * @type {boolean} Appearance of leading zero-value digits: as zero (true) or blank space (false)
-             */
-            showAllDigits: false
-        };
-
-        return $.extend({}, defaults, this, $.fn.catCounter.checkCSSSupport());
+    /**
+     * Default options of catCounter plugin
+     * @return {$.fn.catCounter.Options}
+     */
+    $.fn.catCounter._defaults = {
+        counterClassName: 'catCounter',
+        digitClassName: 'catCounter__decimalPlace',
+        listenerInterval: 500,
+        _useTimeProfiler: false,
+        ascendingOrder: true,
+        showAllDigits: false
     };
     /****************************************************************************************************************/
 
@@ -112,7 +104,7 @@
     };
     /****************************************************************************************************************/
 
-    /******************************************************************************************************************
+    /**
      * Visually replaces DOM element of future counter with necessary elements
      * @param {HTMLElement} elt Subject to replacement
      * @param {Object} options CatCounter plugin options
@@ -137,6 +129,7 @@
 
     /**
      * Adds parameter as first child of given as context HTML Node
+     * @function
      * @param {Node} element
      */
     $.fn.catCounter.NodePrepend = function (element) {
@@ -149,7 +142,7 @@
     };
     /****************************************************************************************************************/
 
-    /******************************************************************************************************************
+    /**
      * Create and return DOM-hierarchy for single counter instance with given parameters [pure JS]
      * @param {HTMLElement} elt - HTMLElement, replaced by counter
      * @param {Object} options - CatCounter plugin options
@@ -158,11 +151,11 @@
     $.fn.catCounter.createNode = function (elt, options) {
         var catCounter = document.createElement('span'),
             addElement = (options.ascendingOrder) ? HTMLElement.prototype.appendChild : $.fn.catCounter.NodePrepend;
-        catCounter.className = elt.className + ' ' + options._counterClassName;
+        catCounter.className = elt.className + ' ' + options.counterClassName;
         var text = elt.innerText;
         for (var d = 0; d < text.length; d ++) {
             var digit = document.createElement('span');
-            digit.className = options._digitClassName;
+            digit.className = options.digitClassName;
             for (var i = 0; i < 10; i++) {
                 var element = document.createElement('span');
                 element.innerText = '' + i;
@@ -178,7 +171,7 @@
     };
     /****************************************************************************************************************/
 
-    /******************************************************************************************************************
+    /**
      * Create and return DOM-hierarchy for single counter instance with given parameters [jQuery]
      * @param {HTMLElement} elt - HTMLElement, replaced by counter
      * @param {Object} options - CatCounter plugin options
@@ -186,14 +179,14 @@
      */
     $.fn.catCounter.$createNode = function (elt, options) {
         var $catCounter = $('<span/>', {
-                class: elt.className + ' ' + options._counterClassName
+                class: elt.className + ' ' + options.counterClassName
             }),
             digitsCount = elt.innerText.length,
             counterAddElement = (options.ascendingOrder) ? $.fn.append : $.fn.prepend;
 
         for (var d = --digitsCount; d >= 0; d--) {
             var $digit = $('<span/>', {
-                    class: options._digitClassName,
+                    class: options.digitClassName,
                     'data-digit': d
                 });
             for (var i = 0; i < 10; i++) {
@@ -206,7 +199,7 @@
     };
     /****************************************************************************************************************/
 
-    /******************************************************************************************************************
+    /**
      * Validates innerText property of DOM element
      * @param {HTMLElement} elt - DOM inline element, which innerText is validated
      * @return {boolean} - True, if any characters, except numerals is present in 'elt'
@@ -237,7 +230,7 @@
                     .data('catCounterOldValue', currentValue)
                     .trigger(onChangeEvent);
             }
-        }, options._listenerInterval));
+        }, options.listenerInterval));
     };
     /****************************************************************************************************************/
 
