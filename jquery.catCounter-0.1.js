@@ -231,13 +231,11 @@
                 $elt = $(elt),
                 oldValue = $elt.data('catCounterOldValue');
             if (currentValue != oldValue) {
+                var onChangeEvent = jQuery.Event('catCounter.valueChanged');
+                onChangeEvent.newValue = currentValue;
                 $elt
                     .data('catCounterOldValue', currentValue)
-                    .trigger(
-                        'catCounter.valueChanged',
-                        {
-                            newValue: currentValue
-                    });
+                    .trigger(onChangeEvent);
             }
         }, options._listenerInterval));
     };
@@ -249,6 +247,7 @@
      */
     $.fn.catCounter.onValueChanged = function (e) {
         console.log('Value changed to: "' + e.newValue + '"');
+        console.log(e);
     };
     /****************************************************************************************************************/
 
