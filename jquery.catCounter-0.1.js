@@ -129,6 +129,7 @@
 
         $elt.hide().parent().append(catCounter);
         $.fn.catCounter.setChangeListener(elt, options);
+        $elt.on('catCounter.valueChanged', $.fn.catCounter.onValueChanged);
 
         return true;
     };
@@ -230,10 +231,24 @@
                 $elt = $(elt),
                 oldValue = $elt.data('catCounterOldValue');
             if (currentValue != oldValue) {
-                console.log('Value changed to: "' + currentValue + '"');
-                $elt.data('catCounterOldValue', currentValue);
+                $elt
+                    .data('catCounterOldValue', currentValue)
+                    .trigger(
+                        'catCounter.valueChanged',
+                        {
+                            newValue: currentValue
+                    });
             }
         }, options._listenerInterval));
+    };
+    /****************************************************************************************************************/
+
+    /**
+     * Callback, executed in case of parent counter object value changed ('catCounter.valueChanged' event)
+     * @param {Object} e - 'catCounter.valueChanged' event object
+     */
+    $.fn.catCounter.onValueChanged = function (e) {
+        console.log('Value changed to: "' + e.newValue + '"');
     };
     /****************************************************************************************************************/
 
