@@ -66,7 +66,7 @@
 
         var $elt = $(elt),
             startTime = new Date(),
-            catCounter = $.fn.catCounter.$createNode(elt, options);
+            catCounter = $.fn.catCounter.createNode(elt, options);
 
         $elt.hide().parent().append(catCounter);
 
@@ -78,6 +78,20 @@
     };
     /****************************************************************************************************************/
 
+    /**
+     * Adds parameter as first child of given as context HTML Node
+     * @param {Node} element
+     */
+    $.fn.catCounter.NodePrepend = function (element) {
+        if (this.childNodes.length) {
+            var firstElement = this.childNodes[0];
+            this.insertBefore(element, firstElement);
+        } else {
+            this.appendChild(element);
+        }
+    };
+    /****************************************************************************************************************/
+
     /******************************************************************************************************************
      * Create and return DOM-hierarchy for single counter instance with given parameters [pure JS]
      * @param {HTMLElement} elt - HTMLElement, replaced by counter
@@ -85,7 +99,8 @@
      * @return {HTMLElement} Detached HTMLElement, containing all DOM structure for one instance of counter
      */
     $.fn.catCounter.createNode = function (elt, options) {
-        var catCounter = document.createElement('span');
+        var catCounter = document.createElement('span'),
+            addElement = (options.ascendingOrder) ? HTMLElement.prototype.appendChild : $.fn.catCounter.NodePrepend;
         catCounter.className = elt.className + ' ' + options._counterClassName;
         var text = elt.innerText;
         for (var d = 0; d < text.length; d ++) {
@@ -94,17 +109,12 @@
             for (var i = 0; i < 10; i++) {
                 var element = document.createElement('span');
                 element.innerText = '' + i;
-                digit.appendChild(element);
+                addElement.call(digit, element);
             }
             element = document.createElement('span');
             element.innerText = '0';
-            digit.appendChild(element);
+            addElement.call(digit, element);
 
-            if (!options.showAllDigits) {
-                element = document.createElement('span');
-                element.innerText = ' ';
-                digit.appendChild(element);
-            }
             catCounter.appendChild(digit);
         }
         return catCounter;
