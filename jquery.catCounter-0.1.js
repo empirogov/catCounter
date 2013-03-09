@@ -223,14 +223,17 @@
      * @param {Object} options - Options of counter given instance
      */
     $.fn.catCounter.setChangeListener = function (elt, options) {
-        elt.catCounterOldValue = elt.innerText;
-        setInterval(function () {
-            var currentValue = elt.innerText;
-            if (currentValue != elt.catCounterOldValue) {
+        var $elt = $(elt);
+        $elt.data('catCounterOldValue', elt.innerText);
+        $elt.data('catCounterChangeListener', setInterval(function () {
+            var currentValue = elt.innerText,
+                $elt = $(elt),
+                oldValue = $elt.data('catCounterOldValue');
+            if (currentValue != oldValue) {
                 console.log('Value changed to: "' + currentValue + '"');
-                elt.catCounterOldValue = currentValue;
+                $elt.data('catCounterOldValue', currentValue);
             }
-        }, options._listenerInterval);
+        }, options._listenerInterval));
     };
     /****************************************************************************************************************/
 
