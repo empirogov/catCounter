@@ -42,17 +42,17 @@
              */
             _digitClassName: 'catCounter__decimalPlace',
             /**
+             * @type {boolean} Log in console timings of code execution
+             */
+            _useTimeProfiler: false,
+            /**
              * @type {boolean} Vertical order of digits from top to down: ascending (true) or descending (false)
              */
             ascendingOrder: true,
             /**
              * @type {boolean} Appearance of leading zero-value digits: as zero (true) or blank space (false)
              */
-            showAllDigits: false,
-            /**
-             * @type {boolean} Log in console timings of code execution
-             */
-            _useTimeProfiler: true
+            showAllDigits: false
         };
 
         return $.extend({}, defaults, this, $.fn.catCounter.checkCSSSupport());

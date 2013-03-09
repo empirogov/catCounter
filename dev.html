@@ -11,13 +11,13 @@
 </head>
 <body>
 
-    <div class="container-1">
+    <div class="container">
         <span class="counter">
             123456789012345678901234567890123456789012345678901234567890
         </span>
     </div>
 
-    <div class="container-2">
+    <div class="container">
         <span class="counter">
                98765432101234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
         </span>
@@ -159,8 +159,10 @@
     </div>
 
     <script type="text/javascript">
-        $('.container-1 .counter').catCounter({showAllDigits: true}).addClass('parsed');
-        $('.container-2 .counter').catCounter({ascendingOrder: false}).addClass('parsed');
+        $('.container .counter').catCounter({
+            showAllDigits: true,
+            _useTimeProfiler: true
+        });
     </script>
 </body>
 </html>
