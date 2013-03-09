@@ -7,12 +7,17 @@
 (function($, window, undefined){
 
     $.fn.catCounter = function (options) {
-
+        $.fn.catCounter.catCounterStartTime = new Date();
 
         options = $.fn.catCounter.expandOptions.apply(options);
         console.log(options);
+
         return $(this).each(function () {
             $.fn.catCounter.init(this, options);
+            if (options._useTimeProfiler) {
+                var catCounterEndTime = new Date();
+                console.log(catCounterEndTime - $.fn.catCounter.catCounterStartTime);
+            }
         });
     };
     /****************************************************************************************************************/
@@ -43,7 +48,11 @@
             /**
              * @type {boolean} Appearance of leading zero-value digits: as zero (true) or blank space (false)
              */
-            showAllDigits: false
+            showAllDigits: false,
+            /**
+             * @type {boolean} Log in console timings of code execution
+             */
+            _useTimeProfiler: true
         };
 
         return $.extend({}, defaults, this, $.fn.catCounter.checkCSSSupport());
@@ -108,21 +117,13 @@
     $.fn.catCounter.init = function (elt, options) {
 
         if (!$.fn.catCounter.isCounterValid(elt)) {
-            //console.log('"' + elt.innerText + '" is invalid');
             return false;
-        } else {
-            //console.log('"' + elt.innerText + '" is valid');
         }
 
         var $elt = $(elt),
-            startTime = new Date(),
             catCounter = $.fn.catCounter.createNode(elt, options);
 
         $elt.hide().parent().append(catCounter);
-
-        var endTime = new Date();
-        console.log(endTime - startTime);
-
 
         return true;
     };

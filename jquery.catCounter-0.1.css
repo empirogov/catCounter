@@ -5,7 +5,6 @@ User styles:
     font-family: 'Impact', sans-serif;
     font-weight: bold;
     font-size: 48px;
-    text-align: center;
 }
 
 /**
@@ -15,10 +14,6 @@ Plugin styles
 .catCounter {
     display: inline-block;
     overflow: hidden;
-    white-space: nowrap;
-
-    height: 60px; /*temp*/
-
 }
 
 .catCounter__decimalPlace {
@@ -28,6 +23,8 @@ Plugin styles
     white-space: normal;
 
     width: 27px; /* temp */
+    height: 60px; /* temp */
+    text-align: center;
 }
 
 .catCounter__decimalPlace > span {
