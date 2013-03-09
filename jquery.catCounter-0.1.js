@@ -18,7 +18,8 @@
     /****************************************************************************************************************/
 
     /**
-     * Extends empty object with default plugin options and passed as context user-given options
+     * Extends empty object with default plugin options and passed as context user-given options,
+     * also passes to options results of required browser features detection
      * @return {Object}
      */
     $.fn.catCounter.expandOptions = function () {
@@ -45,7 +46,56 @@
             showAllDigits: false
         };
 
-        return $.extend({}, defaults, this);
+        return $.extend({}, defaults, this, $.fn.catCounter.checkCSSSupport());
+    };
+    /****************************************************************************************************************/
+
+    /**
+     * Detection of browser CSS animation support and vendor prefixes (if any) for required CSS properties
+     * @return {{
+     *      _useCSS: boolean,
+     *      _usePrefix: String
+     * }}
+     */
+    $.fn.catCounter.checkCSSSupport = function () {
+        var support = {
+                cssSupport: {},
+                prefix: {}
+            },
+            useCSS = true,
+            usePrefix = '',
+            detector = document.createElement('test'),
+            vendors = ',Webkit,Moz,Ms,O'.split(','),
+            propertyName = 'Animation',
+            properties = 'Name,Duration,TimingFunction,Delay,IterationCount,Direction,PlayState'.split(',');
+
+        for (var prop in properties) {
+            properties[prop] = propertyName + properties[prop];
+            support.cssSupport[properties[prop]] = false;
+            for (var vendor in vendors) {
+                var prefixProperty = vendors[vendor] + properties[prop],
+                    isSupported = (detector.style[prefixProperty] === '');
+                if (isSupported) {
+                    support.cssSupport[properties[prop]] = (support.cssSupport[properties[prop]]) || isSupported;
+                    support.prefix[properties[prop]] = vendors[vendor];
+                    break;
+                }
+            }
+            useCSS = (useCSS) && (support.cssSupport[properties[prop]]);
+        }
+        // At the moment plugin will use CSS only if all required css properties prefixes are equal
+        for (prop in support.prefix) {
+            usePrefix = usePrefix || support.prefix[prop];
+            if (usePrefix != support.prefix[prop]) {
+                useCSS = false;
+                break;
+            }
+        }
+
+        return {
+            _useCSS: useCSS,
+            _usePrefix: usePrefix
+        };
     };
     /****************************************************************************************************************/
 
