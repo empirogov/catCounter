@@ -42,6 +42,10 @@
              */
             _digitClassName: 'catCounter__decimalPlace',
             /**
+             * @type {Number} Interval (in ms) of checks for original counter value changes
+             */
+            _listenerInterval: 500,
+            /**
              * @type {boolean} Log in console timings of code execution
              */
             _useTimeProfiler: false,
@@ -124,6 +128,7 @@
             catCounter = $.fn.catCounter.createNode(elt, options);
 
         $elt.hide().parent().append(catCounter);
+        $.fn.catCounter.setChangeListener(elt, options);
 
         return true;
     };
@@ -209,6 +214,23 @@
         var text = elt.innerText,
             notNumerals = new RegExp('[^\\d]');
         return !notNumerals.test(text);
+    };
+    /****************************************************************************************************************/
+
+    /**
+     * Initializes infinite loop of checks if some element innerText is changed
+     * @param {HTMLElement} elt - Checked element
+     * @param {Object} options - Options of counter given instance
+     */
+    $.fn.catCounter.setChangeListener = function (elt, options) {
+        elt.catCounterOldValue = elt.innerText;
+        setInterval(function () {
+            var currentValue = elt.innerText;
+            if (currentValue != elt.catCounterOldValue) {
+                console.log('Value changed to: "' + currentValue + '"');
+                elt.catCounterOldValue = currentValue;
+            }
+        }, options._listenerInterval);
     };
     /****************************************************************************************************************/
 
