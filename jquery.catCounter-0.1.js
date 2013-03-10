@@ -8,6 +8,19 @@
  */
 (function($, window, undefined){
 
+    var catCounter = function (parent, options) {
+        this.options = options;
+        this._parent = parent;
+
+        this._DOM = $.fn.catCounter.createNode(this._parent, options);
+
+        this._$parent = $(parent)
+            .hide()
+            .after(this._DOM)
+            .on('catCounter.valueChanged', $.fn.catCounter.onValueChanged, options);
+        $.fn.catCounter.setChangeListener(this._parent, this.options);
+    };
+
     /**
      * @alias catCounter
      * @namespace catCounter plugin execution namespace
@@ -16,14 +29,34 @@
         $.fn.catCounter.catCounterStartTime = new Date();
 
         options = $.extend({}, $.fn.catCounter._defaults, options, $.fn.catCounter.checkCSSSupport());
-        console.log(options);
+        //console.log(options);
 
         return $(this).each(function () {
-            $.fn.catCounter.init(this, options);
-            if (options._useTimeProfiler) {
+            /**
+             *  Checks, if catCounter instance, based on this element, already exist
+             *  TODO: check, if catCounter constructor called for any of it's existing child elements
+             */
+            if (this.catCounter) {
+                console.log('Rejected: catCounter instance already exists!');
+                return true;
+            }
+
+            /**
+             * Checks, if elements' inner text is valid
+             * TODO: Check, if element, used for catCounter creation has no children
+             */
+            if (!$.fn.catCounter.isCounterValid(this)) {
+                console.log('Rejected: Element inner text isn\'t valid!');
+                return true;
+            }
+
+            this.catCounter = new catCounter(this, options);
+
+            if (this.catCounter.options._useTimeProfiler) {
                 var catCounterEndTime = new Date();
                 console.log(catCounterEndTime - $.fn.catCounter.catCounterStartTime);
             }
+            //console.log(this.catCounter);
         });
     };
     /****************************************************************************************************************/
@@ -38,13 +71,15 @@
      * @property {boolean} useTimeProfiler  Defines if catCounter logs timings of code execution in browser console
      * @property {boolean} ascendingOrder   Vertical order of digits (from top): ascending (true) or descending (false)
      * @property {boolean} showAllDigits    Appearance of leading zero-value digits: zero (true) or blank space (false)
+     * @property {Function} onBeforeValueChanged    Function executed before default onValueChanged method
+     * @property {Function} onAfterValueChanged     Function executed after default onValueChanged method
      * @private
      * @memberOf $.fn.catCounter
      */
 
     /**
      * Default options of catCounter plugin
-     * @return {$.fn.catCounter.Options}
+     * @return {Options}
      */
     $.fn.catCounter._defaults = {
         counterClassName: 'catCounter',
@@ -52,7 +87,10 @@
         listenerInterval: 500,
         _useTimeProfiler: false,
         ascendingOrder: true,
-        showAllDigits: false
+        showAllDigits: false,
+        /* Callbacks */
+        onBeforeValueChanged: function (e) {return this},
+        onAfterValueChanged: function (e) {return this}
     };
     /****************************************************************************************************************/
 
@@ -107,24 +145,24 @@
 
     /**
      * Visually replaces DOM element of future counter with necessary elements
-     * @param {HTMLElement} elt Subject to replacement
-     * @param {Object} options CatCounter plugin options
+     * @constructor
+     * @param {Options} options CatCounter plugin options
      * @return {boolean} True, if DOM element was successfully wrapped
      */
-    $.fn.catCounter.init = function (elt, options) {
+    $.fn.catCounter.constructor = function (options) {
 
-        if (!$.fn.catCounter.isCounterValid(elt)) {
+        if (!$.fn.catCounter.isCounterValid(this)) {
             return false;
         }
 
-        var $elt = $(elt),
-            catCounter = $.fn.catCounter.createNode(elt, options);
+        this.options = options;
 
-        $elt.hide().parent().append(catCounter);
-        $.fn.catCounter.setChangeListener(elt, options);
-        $elt.on('catCounter.valueChanged', $.fn.catCounter.onValueChanged);
-
-        return true;
+//        var $elt = $(elt),
+//            catCounter = $.fn.catCounter.createNode(elt, options);
+//
+//        $elt.hide().parent().append(catCounter);
+//        $.fn.catCounter.setChangeListener(elt, options);
+//        $elt.on('catCounter.valueChanged', $.fn.catCounter.onValueChanged, options);
     };
     /****************************************************************************************************************/
 
@@ -240,11 +278,17 @@
 
     /**
      * Callback, executed in case of parent counter object value changed ('catCounter.valueChanged' event)
-     * @param {Object} e - 'catCounter.valueChanged' event object
+     * @param {Object} e 'catCounter.valueChanged' event object
+     * @param {Options} options
      */
-    $.fn.catCounter.onValueChanged = function (e) {
+    $.fn.catCounter.onValueChanged = function (e, options) {
+
+        options.onBeforeValueChanged(e);
+
         console.log('Value changed to: "' + e.newValue + '"');
         console.log(e);
+
+        options.onAfterValueChanged(e);
     };
     /****************************************************************************************************************/
 
