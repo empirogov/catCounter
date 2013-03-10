@@ -1,4 +1,4 @@
-//noinspection ThisExpressionReferencesGlobalObjectJS
+
 /**
  * IIFE, expanding prototype of jQuery with catCounter method
  * @function
@@ -9,8 +9,8 @@
 (function($, window, undefined){
 
     /**
+     * @alias catCounter
      * @namespace catCounter plugin execution namespace
-     * @constructor
      */
     $.fn.catCounter = function (options) {
         $.fn.catCounter.catCounterStartTime = new Date();
@@ -41,6 +41,7 @@
      * @private
      * @memberOf $.fn.catCounter
      */
+
     /**
      * Default options of catCounter plugin
      * @return {$.fn.catCounter.Options}
@@ -128,16 +129,24 @@
     /****************************************************************************************************************/
 
     /**
-     * Adds parameter as first child of given as context HTML Node
-     * @function
-     * @param {Node} element
+     * Fictive class declaration for DOM Element object.
+     * For further details see http://www.w3schools.com/jsref/dom_obj_element.asp
+     * @name Element
+     * @class
+     * @constructor
      */
-    $.fn.catCounter.NodePrepend = function (element) {
-        if (this.childNodes.length) {
-            var firstElement = this.childNodes[0];
-            this.insertBefore(element, firstElement);
+
+    /**
+     * Adds parameter as first child of given as context HTML Node
+     * @this {Node}
+     * @param {Node} newElement
+     * @methodOf Element.prototype
+     */
+    Element.prototype.ccPrependChild = function (newElement) {
+        if (this.firstChild) {
+            this.insertBefore(newElement, this.firstChild);
         } else {
-            this.appendChild(element);
+            this.appendChild(newElement);
         }
     };
     /****************************************************************************************************************/
@@ -150,20 +159,18 @@
      */
     $.fn.catCounter.createNode = function (elt, options) {
         var catCounter = document.createElement('span'),
-            addElement = (options.ascendingOrder) ? HTMLElement.prototype.appendChild : $.fn.catCounter.NodePrepend;
+            allDigits = (options.ascendingOrder) ? '0 1 3 4 5 6 7 8 9 0' : '0 9 8 7 6 5 4 3 2 1 0';
+
         catCounter.className = elt.className + ' ' + options.counterClassName;
         var text = elt.innerText;
         for (var d = 0; d < text.length; d ++) {
             var digit = document.createElement('span');
             digit.className = options.digitClassName;
-            for (var i = 0; i < 10; i++) {
-                var element = document.createElement('span');
-                element.innerText = '' + i;
-                addElement.call(digit, element);
-            }
-            element = document.createElement('span');
-            element.innerText = '0';
-            addElement.call(digit, element);
+
+            var element = document.createElement('span');
+
+            element.innerText = allDigits;
+            digit.appendChild(element);
 
             catCounter.appendChild(digit);
         }
@@ -182,17 +189,14 @@
                 class: elt.className + ' ' + options.counterClassName
             }),
             digitsCount = elt.innerText.length,
-            counterAddElement = (options.ascendingOrder) ? $.fn.append : $.fn.prepend;
+            allDigits = (options.ascendingOrder) ? '0 1 3 4 5 6 7 8 9 0' : '0 9 8 7 6 5 4 3 2 1 0';
 
         for (var d = --digitsCount; d >= 0; d--) {
             var $digit = $('<span/>', {
                     class: options.digitClassName,
                     'data-digit': d
                 });
-            for (var i = 0; i < 10; i++) {
-                counterAddElement.call($digit, '<span>' + i + '</span>');
-            }
-            counterAddElement.call($digit, '<span>0</span>');
+            $digit.append('<span>' + allDigits + '</span>')
             $catCounter.append($digit);
         }
         return $catCounter;

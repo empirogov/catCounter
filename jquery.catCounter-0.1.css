@@ -12,7 +12,7 @@ Plugin styles
 */
 
 .catCounter {
-    display: inline-block;
+    display: inline;
     overflow: hidden;
 }
 
@@ -32,7 +32,8 @@ Plugin styles
     position: relative;
 
     width: 27px; /* temp */
-    height: 60px; /* temp */
+    /*height: 60px; /* temp */
+    letter-spacing: 100px;
 }
 
 /* CSS animation */
