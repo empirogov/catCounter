@@ -2,24 +2,100 @@
 /**
  * IIFE, expanding prototype of jQuery with catCounter method
  * @function
- * @param {Object} $ Generic jQuery object
- * @param {Object} window Topmost context of code execution
+ * @param {$} $ Generic jQuery object
+ * @param {Window} window Topmost context of code execution
  * @param {undefined} undefined Obviously undefined parameter
  */
 (function($, window, undefined){
 
+    /**
+     * @constructor
+     * @param {HTMLElement} parent
+     * @param {Options} options
+     */
     var catCounter = function (parent, options) {
         this.options = options;
         this._parent = parent;
 
-        this._DOM = $.fn.catCounter.createNode(this._parent, options);
+        this._html = this._buildDOM();
 
         this._$parent = $(parent)
             .hide()
-            .after(this._DOM)
-            .on('catCounter.valueChanged', $.fn.catCounter.onValueChanged, options);
-        $.fn.catCounter.setChangeListener(this._parent, this.options);
+            .after(this._html);
+        this._setChangeListener();
     };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Create and return DOM-hierarchy for given counter instance [pure JS]
+     * @return {HTMLElement} Detached HTMLElement, containing all DOM structure for one instance of counter
+     */
+    catCounter.prototype._buildDOM = function () {
+        var counter = document.createElement('span'),
+            allDigits = (this.options.ascendingOrder) ? '0 1 3 4 5 6 7 8 9 0' : '0 9 8 7 6 5 4 3 2 1 0';
+
+        counter.className = this._parent.className + ' ' + this.options.counterClassName;
+        var text = this._parent.innerText;
+        for (var d = 0; d < text.length; d ++) {
+            var digit = document.createElement('span');
+            digit.className = this.options.digitClassName;
+
+            var element = document.createElement('span');
+
+            element.innerText = allDigits;
+            digit.appendChild(element);
+
+            counter.appendChild(digit);
+        }
+        return counter;
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Callback, executed in case of parent counter object value changed ('catCounter.valueChanged' event)
+     * @param {Event} e 'catCounter.valueChanged' event object
+     */
+    catCounter.prototype._onValueChanged = function (e) {
+
+        if (e.newValue !== undefined) {
+           this.cCounter.options.onBeforeValueChanged(e);
+
+           // clearInterval(this._catCounterChangeListener);
+
+//            console.log('Value changed to: "' + e.newValue + '"');
+            this.cCounter._oldParentValue = e.newValue;
+
+           this.cCounter.options.onAfterValueChanged(e);
+        }
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Initializes infinite loop of checks if of given catCounter instance parent element innerText changed
+     * and fires 'catCounter.valueChanged' event if necessary
+     */
+    catCounter.prototype._setChangeListener = function () {
+        this._$parent.on('catCounter.valueChanged', this._onValueChanged);
+
+        this._oldParentValue = this._parent.innerText;
+        var counter = this;
+        this._catCounterChangeListener = setInterval (
+            function () {
+                if (counter._parent.innerText != counter._oldParentValue) {
+                    var onChangeEvent = jQuery.Event('catCounter.valueChanged');
+                    onChangeEvent.newValue = counter._parent.innerText;
+                    onChangeEvent.oldValue = counter._oldParentValue;
+                    counter._$parent.trigger(onChangeEvent);
+                }
+            },
+            this.options.listenerInterval
+        );
+    };
+    /****************************************************************************************************************/
+
 
     /**
      * @alias catCounter
@@ -36,23 +112,23 @@
              *  Checks, if catCounter instance, based on this element, already exist
              *  TODO: check, if catCounter constructor called for any of it's existing child elements
              */
-            if (this.catCounter) {
+            if (this.cCounter) {
                 console.log('Rejected: catCounter instance already exists!');
                 return true;
             }
 
             /**
              * Checks, if elements' inner text is valid
-             * TODO: Check, if element, used for catCounter creation has no children
+             * TODO: Check, if element, used for catCounter creation has any unwanted children
              */
             if (!$.fn.catCounter.isCounterValid(this)) {
                 console.log('Rejected: Element inner text isn\'t valid!');
                 return true;
             }
 
-            this.catCounter = new catCounter(this, options);
+            this.cCounter = new catCounter(this, options);
 
-            if (this.catCounter.options._useTimeProfiler) {
+            if (this.cCounter.options._useTimeProfiler) {
                 var catCounterEndTime = new Date();
                 console.log(catCounterEndTime - $.fn.catCounter.catCounterStartTime);
             }
@@ -71,8 +147,8 @@
      * @property {boolean} useTimeProfiler  Defines if catCounter logs timings of code execution in browser console
      * @property {boolean} ascendingOrder   Vertical order of digits (from top): ascending (true) or descending (false)
      * @property {boolean} showAllDigits    Appearance of leading zero-value digits: zero (true) or blank space (false)
-     * @property {Function} onBeforeValueChanged    Function executed before default onValueChanged method
-     * @property {Function} onAfterValueChanged     Function executed after default onValueChanged method
+     * @property {Function} onBeforeValueChanged    Callback executed before default onValueChanged method
+     * @property {Function} onAfterValueChanged     Callback executed after default onValueChanged method
      * @private
      * @memberOf $.fn.catCounter
      */
@@ -143,27 +219,6 @@
     };
     /****************************************************************************************************************/
 
-    /**
-     * Visually replaces DOM element of future counter with necessary elements
-     * @constructor
-     * @param {Options} options CatCounter plugin options
-     * @return {boolean} True, if DOM element was successfully wrapped
-     */
-    $.fn.catCounter.constructor = function (options) {
-
-        if (!$.fn.catCounter.isCounterValid(this)) {
-            return false;
-        }
-
-        this.options = options;
-
-//        var $elt = $(elt),
-//            catCounter = $.fn.catCounter.createNode(elt, options);
-//
-//        $elt.hide().parent().append(catCounter);
-//        $.fn.catCounter.setChangeListener(elt, options);
-//        $elt.on('catCounter.valueChanged', $.fn.catCounter.onValueChanged, options);
-    };
     /****************************************************************************************************************/
 
     /**
@@ -189,31 +244,6 @@
     };
     /****************************************************************************************************************/
 
-    /**
-     * Create and return DOM-hierarchy for single counter instance with given parameters [pure JS]
-     * @param {HTMLElement} elt - HTMLElement, replaced by counter
-     * @param {Object} options - CatCounter plugin options
-     * @return {HTMLElement} Detached HTMLElement, containing all DOM structure for one instance of counter
-     */
-    $.fn.catCounter.createNode = function (elt, options) {
-        var catCounter = document.createElement('span'),
-            allDigits = (options.ascendingOrder) ? '0 1 3 4 5 6 7 8 9 0' : '0 9 8 7 6 5 4 3 2 1 0';
-
-        catCounter.className = elt.className + ' ' + options.counterClassName;
-        var text = elt.innerText;
-        for (var d = 0; d < text.length; d ++) {
-            var digit = document.createElement('span');
-            digit.className = options.digitClassName;
-
-            var element = document.createElement('span');
-
-            element.innerText = allDigits;
-            digit.appendChild(element);
-
-            catCounter.appendChild(digit);
-        }
-        return catCounter;
-    };
     /****************************************************************************************************************/
 
     /**
@@ -253,43 +283,5 @@
     };
     /****************************************************************************************************************/
 
-    /**
-     * Initializes infinite loop of checks if some element innerText is changed
-     * @param {HTMLElement} elt - Checked element
-     * @param {Object} options - Options of counter given instance
-     */
-    $.fn.catCounter.setChangeListener = function (elt, options) {
-        var $elt = $(elt);
-        $elt.data('catCounterOldValue', elt.innerText);
-        $elt.data('catCounterChangeListener', setInterval(function () {
-            var currentValue = elt.innerText,
-                $elt = $(elt),
-                oldValue = $elt.data('catCounterOldValue');
-            if (currentValue != oldValue) {
-                var onChangeEvent = jQuery.Event('catCounter.valueChanged');
-                onChangeEvent.newValue = currentValue;
-                $elt
-                    .data('catCounterOldValue', currentValue)
-                    .trigger(onChangeEvent);
-            }
-        }, options.listenerInterval));
-    };
-    /****************************************************************************************************************/
-
-    /**
-     * Callback, executed in case of parent counter object value changed ('catCounter.valueChanged' event)
-     * @param {Object} e 'catCounter.valueChanged' event object
-     * @param {Options} options
-     */
-    $.fn.catCounter.onValueChanged = function (e, options) {
-
-        options.onBeforeValueChanged(e);
-
-        console.log('Value changed to: "' + e.newValue + '"');
-        console.log(e);
-
-        options.onAfterValueChanged(e);
-    };
-    /****************************************************************************************************************/
 
 })(jQuery, this);
