@@ -240,7 +240,7 @@
     /**
      * @function
      * @name catCounter
-     * @param {Options} options
+     * @param {Object} options
      *      Object of type {@link catCounter.Options}, containing user defined options for catCounter class instance
      *      creation. ny missed options will be taken from {@link catCounter._defaults} static property.
      * @returns {jQuery}
@@ -253,11 +253,9 @@
         //console.log(options);
 
         return $(this).each(function () {
-            /**
-             *  Checks, if catCounter instance, based on this element, already exist
-             *  TODO: check, if catCounter constructor called for any of it's existing child elements
-             */
-            if (this.cCounter) {
+
+            // Checking if no catCounter instances already assigned on this this element and/or any of it's parents
+            if ((this.cCounter) || (this.isCatCounterChild())) {
                 console.log('Rejected: catCounter instance already exists!');
                 return true;
             }
@@ -268,6 +266,8 @@
              */
             if (!this.ccIsParentValid()) {
                 console.log('Rejected: Element inner text isn\'t valid!');
+                console.log('Inner test is: ');
+                console.log(this.innerText);
                 return true;
             }
 
@@ -317,5 +317,19 @@
     };
     /****************************************************************************************************************/
 
+
+    /**
+     * Returns true if any of given as context HTML element's parents is already replaced with catCounter instance
+     * @this {HTMLElement}
+     * @return {boolean}
+     */
+    Element.prototype.isCatCounterChild = function () {
+        var catCounterFound = false;
+        $(this).parents().each(function () {
+            catCounterFound = catCounterFound || (this.cCounter);
+        });
+        return catCounterFound;
+    }
+    /****************************************************************************************************************/
 
 })(jQuery, this);
