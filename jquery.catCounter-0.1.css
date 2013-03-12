@@ -13,17 +13,17 @@ Plugin styles
 
 .catCounter {
     display: inline;
-    overflow: hidden;
 }
 
 .catCounter__decimalPlace {
     display: inline-block;
+    vertical-align: bottom;
     overflow: hidden;
     position: relative;
     white-space: normal;
 
-    width: 27px; /* temp */
-    height: 60px; /* temp */
+    width: 27px; /* temp; Must be equal to most wide digit character width */
+    height: 60px; /* temp; Must be equal to original element line-height */
     text-align: center;
 }
 
@@ -31,8 +31,7 @@ Plugin styles
     display: inline-block;
     position: relative;
 
-    width: 27px; /* temp */
-    /*height: 60px; /* temp */
+    width: 27px; /* Must be equal to most wide digit character width */
     letter-spacing: 100px;
 }
 
