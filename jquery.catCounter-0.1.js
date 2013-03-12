@@ -5,6 +5,8 @@
  */
 
 
+// TODO: check, if user browser has console and supports console.log
+
 /**
  * IIFE, expanding prototype of jQuery with catCounter method
  * @function
@@ -41,6 +43,7 @@
         this._$parent = $(parent)
             .hide()
             .after(this._html);
+
         this._setChangeListener();
     };
     /****************************************************************************************************************/
@@ -238,6 +241,27 @@
 
 
     /**
+     * If catCounter option _useTimeProfiler set to true, logs in console difference between two Date objects:
+     * current date and given as parameter one (currently accepted only objects with method 'getTime').
+     * If no parameter, or parameter without 'getTime' method passed, logs current time in human understandable
+     * format. If catCounter option _useTimeProfiler set to false, does nothing.
+     * @param {Date} oldTime Some previously taken date, time elapsed from which should be logged
+     * @private
+     */
+    catCounter.prototype._consoleTimeFrom = function (oldTime) {
+        if (this.options._useTimeProfiler) {
+            var catCounterEndTime = new Date();
+            if ((oldTime) && (oldTime['getTime'])) {
+                console.log(catCounterEndTime - oldTime);
+            } else {
+                console.log('Invalid time interval to log. Current time is: ' + catCounterEndTime.toTimeString());
+            }
+        }
+    };
+    /****************************************************************************************************************/
+
+
+    /**
      * @function
      * @name catCounter
      * @param {Object} options
@@ -247,7 +271,7 @@
      * @memberOf jQuery
      */
     $.fn.catCounter = function (options) {
-        $.fn.catCounter.catCounterStartTime = new Date();
+        var catCounterStartTime =  new Date();
 
         options = $.extend({}, catCounter._defaults, options, catCounter.checkCSSSupport());
         //console.log(options);
@@ -260,23 +284,15 @@
                 return true;
             }
 
-            /**
-             * Checks, if elements' inner text is valid
-             * TODO: Check, if element, used for catCounter creation has any unwanted children
-             */
-            if (!this.ccIsParentValid()) {
-                console.log('Rejected: Element inner text isn\'t valid!');
-                console.log('Inner test is: ');
-                console.log(this.innerText);
+            // Checks, if elements' inner text is valid
+            if ((this.childElementCount) || (!this.ccIsParentValid())) {
+                console.log('Rejected: Element contents isn\'t valid!');
                 return true;
             }
 
             this.cCounter = new catCounter(this, options);
 
-            if (this.cCounter.options._useTimeProfiler) {
-                var catCounterEndTime = new Date();
-                console.log(catCounterEndTime - $.fn.catCounter.catCounterStartTime);
-            }
+            this.cCounter._consoleTimeFrom(catCounterStartTime);
             //console.log(this.catCounter);
         });
     };
