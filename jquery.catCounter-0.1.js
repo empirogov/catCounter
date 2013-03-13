@@ -6,6 +6,7 @@
 
 
 // TODO: check, if user browser has console and supports console.log
+// TODO: [MAJOR] Fix line-breaking behavior of initialized counter instance
 
 /**
  * IIFE, expanding prototype of jQuery with catCounter method
