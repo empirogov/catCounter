@@ -16,6 +16,52 @@
  */
 (function($, window, undefined){
 
+
+    /**
+     * Represents one decimal digit of catCounter
+     * @class
+     * @name catCounterDigit
+     * @property {Number} _value
+     *      Current value
+     * @property {catCounter} parent
+     *      Superior instance of {@link catCounter} class
+     * @constructor
+     * @param {catCounter} parent
+     *      Initial value of {@link catCounterDigit#parent} property
+     * @param {Number} value
+     *      Initial value of {@link catCounterDigit#_value} property
+     */
+    var catCounterDigit = function (parent, value) {
+        // TODO: Implement links with previous and next digits
+        this._value = value;
+        this.parent = parent;
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * @return {Number} {@link catCounterDigit#_value} property
+     */
+    catCounterDigit.prototype.getValue = function () {
+        return this._value;
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Sets {@link catCounterDigit#_value} property of given instance of {@link catCounterDigit} class,
+     * and (which isn't implemented yet) runs appropriate animation routine
+     * @param {Number} value New value of {@link catCounterDigit#_value} property
+     * @description
+     */
+    catCounterDigit.prototype.setValue = function (value) {
+        // TODO: Unite getValue and setValue methods with optional newValue parameter
+        // TODO: Implement animation
+        this._value = value;
+    };
+    /****************************************************************************************************************/
+
+
     /**
      * @class
      * @name catCounter
@@ -35,6 +81,9 @@
      *      replaced with catCounter instance has property cCounter, containing a link to catCounter object
      */
     var catCounter = function (parent, options) {
+        // TODO: Implement digits constructor/destructor calls
+        // TODO: Implement method, parsing and changing all of counter digits
+        // TODO: Implement style-setting and renewal for HTML elements of catCounter instance
         this.options = options;
         this._parent = parent;
 
@@ -145,6 +194,24 @@
 
 
     /**
+     * Callback, executed in case of parent counter object value changed ('catCounter.valueChanged' event)
+     * @param {Event} e 'catCounter.valueChanged' event object
+     */
+    catCounter.prototype._onValueChanged = function (e) {
+        if (e.newValue !== undefined) {
+            this.cCounter.options.onBeforeValueChanged(e);
+
+            // clearInterval(this._catCounterChangeListener);
+
+//            console.log('Value changed to: "' + e.newValue + '"');
+            this.cCounter._oldParentValue = e.newValue;
+
+            this.cCounter.options.onAfterValueChanged(e);
+        }
+    };
+    /****************************************************************************************************************/
+
+    /**
      * Detection of browser CSS animation support and vendor prefixes (if any) for required CSS properties
      * @static
      * @return {{
@@ -192,26 +259,6 @@
             _useCSS: useCSS,
             _usePrefix: usePrefix
         };
-    };
-    /****************************************************************************************************************/
-
-
-    /**
-     * Callback, executed in case of parent counter object value changed ('catCounter.valueChanged' event)
-     * @param {Event} e 'catCounter.valueChanged' event object
-     */
-    catCounter.prototype._onValueChanged = function (e) {
-
-        if (e.newValue !== undefined) {
-           this.cCounter.options.onBeforeValueChanged(e);
-
-           // clearInterval(this._catCounterChangeListener);
-
-//            console.log('Value changed to: "' + e.newValue + '"');
-            this.cCounter._oldParentValue = e.newValue;
-
-           this.cCounter.options.onAfterValueChanged(e);
-        }
     };
     /****************************************************************************************************************/
 
