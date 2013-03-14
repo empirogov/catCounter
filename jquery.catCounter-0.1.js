@@ -100,46 +100,6 @@
 
 
     /**
-     * Fictive class for documenting plugin options hierarchy
-     * @class
-     * @name Options
-     * @property {String} counterClassName  Class name for top-level HTMLElement of single catCounter instance
-     * @property {String} digitClassName    Class name for decimal place wrapper HTMLElement
-     * @property {Number} listenerInterval  Interval (in ms) of checks for original counter value changes
-     * @property {boolean} useTimeProfiler  Defines if catCounter logs timings of code execution in browser console
-     * @property {boolean} ascendingOrder   Vertical order of digits (from top): ascending (true) or descending (false)
-     * @property {boolean} showAllDigits    Appearance of leading zero-value digits: zero (true) or blank space (false)
-     * @property {Function} onBeforeValueChanged    Callback executed before default onValueChanged method
-     * @property {Function} onAfterValueChanged     Callback executed after default onValueChanged method
-     * @property {boolean} _useCSS
-     *      If true, counter should be animated by CSS3 animation.
-     *      Can't be defined by user, only by {@link catCounter.checkCSSSupport} method
-     * @property {String} __usePrefix
-     *      Vendor prefix (if any) for CSS3 animation properties, supported by user's browser
-     * @private
-     * @memberOf catCounter
-     */
-
-    /**
-     * Default options of catCounter plugin
-     * @static
-     * @type {Options}
-     */
-    catCounter._defaults = {
-        counterClassName: 'catCounter',
-        digitClassName: 'catCounter__decimalPlace',
-        listenerInterval: 500,
-        _useTimeProfiler: false,
-        ascendingOrder: true,
-        showAllDigits: false,
-        /* Callbacks */
-        onBeforeValueChanged: function (e) {return this},
-        onAfterValueChanged: function (e) {return this}
-    };
-    /****************************************************************************************************************/
-
-
-    /**
      * Create and return DOM-hierarchy for given counter instance. Written without using of jQuery.
      * @return {HTMLElement} Detached HTMLElement, containing all DOM structure for one instance of counter
      */
@@ -212,6 +172,7 @@
     };
     /****************************************************************************************************************/
 
+
     /**
      * Detection of browser CSS animation support and vendor prefixes (if any) for required CSS properties
      * @static
@@ -248,11 +209,13 @@
             useCSS = (useCSS) && (support.cssSupport[properties[prop]]);
         }
         // At the moment plugin will use CSS only if all required css properties prefixes are equal
-        for (prop in support.prefix) {
-            usePrefix = usePrefix || support.prefix[prop];
-            if (usePrefix != support.prefix[prop]) {
-                useCSS = false;
-                break;
+        if  (useCSS) {
+            for (prop in support.prefix) {
+                usePrefix = usePrefix || support.prefix[prop];
+                if (usePrefix != support.prefix[prop]) {
+                    useCSS = false;
+                    break;
+                }
             }
         }
 
@@ -314,14 +277,16 @@
      * @name catCounter
      * @param {Object} options
      *      Object of type {@link catCounter.Options}, containing user defined options for catCounter class instance
-     *      creation. ny missed options will be taken from {@link catCounter._defaults} static property.
+     *      creation. Any missed options will be taken from new instance of {@link Options} class.
      * @returns {jQuery}
      * @memberOf jQuery
      */
     $.fn.catCounter = function (options) {
         var catCounterStartTime =  new Date();
 
-        options = $.extend({}, catCounter._defaults, options, catCounter.checkCSSSupport());
+        var _defaults = new $.fn.catCounter._defaults();
+
+        options = $.extend({}, _defaults, options, catCounter.checkCSSSupport());
         //console.log(options);
 
         return $(this).each(function () {
@@ -344,6 +309,47 @@
             //console.log(this.catCounter);
         });
     };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Fictive class for documenting plugin options hierarchy
+     * @class
+     * @ name Options
+     * @property {String} [counterClassName="catCounter"]
+     *      Class name for top-level HTMLElement of single catCounter instance
+     * @property {String} [digitClassName="catCounter_decimalPlace"]
+     *      Class name for decimal place wrapper HTMLElement
+     * @property {Number} [listenerInterval=500]
+     *      Interval (in ms) of checks for original counter value changes
+     * @property {boolean} [useTimeProfiler=false]
+     *      Defines if catCounter logs timings of code execution in browser console
+     * @property {boolean} [ascendingOrder=true]
+     *      Vertical order of digits (from top): ascending (true) or descending (false)
+     * @property {boolean} [showAllDigits=false]
+     *      Appearance of leading zero-value digits: zero (true) or blank space (false)
+     * @property {Function} [onBeforeValueChanged]
+     *      Callback executed before default onValueChanged method
+     * @property {Function} [onAfterValueChanged]
+     *      Callback executed after default onValueChanged method
+     * @property {boolean} _useCSS
+     *      If true, counter should be animated by CSS3 animation.
+     *      Can't be defined by user, only by {@link catCounter.checkCSSSupport} method
+     * @property {String} __usePrefix
+     *      Vendor prefix (if any) for CSS3 animation properties, supported by user's browser
+     * @private
+     */
+    $.fn.catCounter._defaults = function () {
+        this.counterClassName = 'catCounter';
+        this.digitClassName = 'catCounter__decimalPlace';
+        this.listenerInterval = 500;
+        this._useTimeProfiler = false;
+        this.ascendingOrder = true;
+        this.showAllDigits = false;
+        /* Callbacks */
+        this.onBeforeValueChanged = function (e) {return this};
+        this.onAfterValueChanged = function (e) {return this};
+    }
     /****************************************************************************************************************/
 
 
