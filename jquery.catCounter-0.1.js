@@ -87,11 +87,13 @@
         // TODO: Implement style-setting and renewal for HTML elements of catCounter instance
         this.options = options;
         this._parent = parent;
+        this._$parent = $(parent);
 
         this._html = this._buildDOM();
 
-        this._$parent = $(parent)
-            .hide()
+        this.refreshStyles();
+
+        this._$parent.hide()
             .after(this._html);
 
         this._setChangeListener();
@@ -155,6 +157,54 @@
 
 
     /**
+     * If catCounter option _useTimeProfiler set to true, logs in console difference between two Date objects:
+     * current date and given as parameter one (currently accepted only objects with method 'getTime').
+     * If no parameter, or parameter without 'getTime' method passed, logs current time in human understandable
+     * format. If catCounter option _useTimeProfiler set to false, does nothing.
+     * @param {Date} oldTime Some previously taken date, time elapsed from which should be logged
+     * @private
+     */
+    catCounter.prototype._consoleTimeFrom = function (oldTime) {
+        if (this.options._useTimeProfiler) {
+            var catCounterEndTime = new Date();
+            if ((oldTime) && (oldTime['getTime'])) {
+                console.log(catCounterEndTime - oldTime);
+            } else {
+                console.log('Invalid time interval to log. Current time is: ' + catCounterEndTime.toTimeString());
+            }
+        }
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Returns CSS properties for given catCounter instance
+     * @private
+     * @return {Object}
+     */
+    catCounter.prototype._detectCSSProperties = function () {
+        // TODO: Perfomance testing and code refactoring
+        var _characterWidth = 0,
+            _characterHeight = 0,
+            oldVal = this._parent.innerText;
+
+        //for (var char = 0; char < 10; char++) {
+            this._parent.innerText = '0';
+            _characterWidth = Math.max(_characterWidth, this._$parent.width());
+            _characterHeight = Math.max(_characterHeight, this._$parent.height());
+        //};
+        this._parent.innerText = oldVal;
+
+        return {
+            lineHeight: this._$parent.css('line-height'),
+            height:     _characterHeight,
+            width:      _characterWidth
+            };
+    };
+    /****************************************************************************************************************/
+
+
+    /**
      * Callback, executed in case of parent counter object value changed ('catCounter.valueChanged' event)
      * @param {Event} e 'catCounter.valueChanged' event object
      */
@@ -169,6 +219,51 @@
 
             this.cCounter.options.onAfterValueChanged(e);
         }
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Initializes infinite loop of checks if of given catCounter instance parent element innerText changed
+     * and fires 'catCounter.valueChanged' event if necessary
+     */
+    catCounter.prototype._setChangeListener = function () {
+        this._$parent.on('catCounter.valueChanged', this._onValueChanged);
+
+        this._oldParentValue = this._parent.innerText;
+        var counter = this;
+        this._catCounterChangeListener = setInterval (
+            function () {
+                if (counter._parent.innerText != counter._oldParentValue) {
+                    var onChangeEvent = jQuery.Event('catCounter.valueChanged');
+                    onChangeEvent.newValue = counter._parent.innerText;
+                    onChangeEvent.oldValue = counter._oldParentValue;
+                    counter._$parent.trigger(onChangeEvent);
+                }
+            },
+            this.options.listenerInterval
+        );
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Renews inline styles for given catCounter instance
+     */
+    catCounter.prototype.refreshStyles = function () {
+        // TODO: Perfomance testing and code refactoring
+        this._css = this._detectCSSProperties();
+        console.log(this._css);
+
+        var newHeight = this._css.height,
+            newWidth = this._css.width;
+
+        $(this._html)
+            .children()
+            .css({
+                'height': this._css.height,
+                'width': this._css.width
+            });
     };
     /****************************************************************************************************************/
 
@@ -223,51 +318,6 @@
             _useCSS: useCSS,
             _usePrefix: usePrefix
         };
-    };
-    /****************************************************************************************************************/
-
-
-    /**
-     * Initializes infinite loop of checks if of given catCounter instance parent element innerText changed
-     * and fires 'catCounter.valueChanged' event if necessary
-     */
-    catCounter.prototype._setChangeListener = function () {
-        this._$parent.on('catCounter.valueChanged', this._onValueChanged);
-
-        this._oldParentValue = this._parent.innerText;
-        var counter = this;
-        this._catCounterChangeListener = setInterval (
-            function () {
-                if (counter._parent.innerText != counter._oldParentValue) {
-                    var onChangeEvent = jQuery.Event('catCounter.valueChanged');
-                    onChangeEvent.newValue = counter._parent.innerText;
-                    onChangeEvent.oldValue = counter._oldParentValue;
-                    counter._$parent.trigger(onChangeEvent);
-                }
-            },
-            this.options.listenerInterval
-        );
-    };
-    /****************************************************************************************************************/
-
-
-    /**
-     * If catCounter option _useTimeProfiler set to true, logs in console difference between two Date objects:
-     * current date and given as parameter one (currently accepted only objects with method 'getTime').
-     * If no parameter, or parameter without 'getTime' method passed, logs current time in human understandable
-     * format. If catCounter option _useTimeProfiler set to false, does nothing.
-     * @param {Date} oldTime Some previously taken date, time elapsed from which should be logged
-     * @private
-     */
-    catCounter.prototype._consoleTimeFrom = function (oldTime) {
-        if (this.options._useTimeProfiler) {
-            var catCounterEndTime = new Date();
-            if ((oldTime) && (oldTime['getTime'])) {
-                console.log(catCounterEndTime - oldTime);
-            } else {
-                console.log('Invalid time interval to log. Current time is: ' + catCounterEndTime.toTimeString());
-            }
-        }
     };
     /****************************************************************************************************************/
 

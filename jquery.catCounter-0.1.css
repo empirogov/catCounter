@@ -22,8 +22,10 @@ Plugin styles
     position: relative;
     white-space: normal;
 
-    width: 27px; /* temp; Must be equal to most wide digit character width */
-    height: 60px; /* temp; Must be equal to original element line-height */
+    width: 27px; /* Left only for testing purposes*/
+    /* temp; Should be equal to most wide digit character width */
+    height: 60px; /* Left only for testing purposes*/
+    /* temp; Should be equal to original element line-height */
     text-align: center;
 }
 
@@ -31,7 +33,7 @@ Plugin styles
     display: inline-block;
     position: relative;
 
-    width: 27px; /* Must be equal to most wide digit character width */
+    width: 100%;
     letter-spacing: 100px;
 }
 
@@ -131,8 +133,8 @@ Plugin styles
 
 @-webkit-keyframes myfirst /* Safari and Chrome */
 {
-    from {top: 0px;}
-    to {top: -600px;}
+    from {top: -600px;}
+    to {top: 0px;}
 }
 
 @-o-keyframes myfirst /* Opera */
