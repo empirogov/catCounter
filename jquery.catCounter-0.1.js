@@ -157,27 +157,6 @@
 
 
     /**
-     * If catCounter option _useTimeProfiler set to true, logs in console difference between two Date objects:
-     * current date and given as parameter one (currently accepted only objects with method 'getTime').
-     * If no parameter, or parameter without 'getTime' method passed, logs current time in human understandable
-     * format. If catCounter option _useTimeProfiler set to false, does nothing.
-     * @param {Date} oldTime Some previously taken date, time elapsed from which should be logged
-     * @private
-     */
-    catCounter.prototype._consoleTimeFrom = function (oldTime) {
-        if (this.options._useTimeProfiler) {
-            var catCounterEndTime = new Date();
-            if ((oldTime) && (oldTime['getTime'])) {
-                console.log(catCounterEndTime - oldTime);
-            } else {
-                console.log('Invalid time interval to log. Current time is: ' + catCounterEndTime.toTimeString());
-            }
-        }
-    };
-    /****************************************************************************************************************/
-
-
-    /**
      * Returns CSS properties for given catCounter instance
      * @private
      * @return {Object}
@@ -370,8 +349,6 @@
      * @memberOf jQuery
      */
     $.fn.catCounter = function (options) {
-        var catCounterStartTime =  new Date();
-
         var _defaults = new $.fn.catCounter._defaults();
 
         options = $.extend({}, _defaults, options, catCounter.checkCSSSupport());
@@ -392,9 +369,6 @@
             }
 
             this.cCounter = new catCounter(this, options);
-
-            this.cCounter._consoleTimeFrom(catCounterStartTime);
-            //console.log(this.catCounter);
         });
     };
     /****************************************************************************************************************/
@@ -410,8 +384,6 @@
      *      Class name for decimal place wrapper HTMLElement
      * @property {Number} [listenerInterval=500]
      *      Interval (in ms) of checks for original counter value changes
-     * @property {boolean} [useTimeProfiler=false]
-     *      Defines if catCounter logs timings of code execution in browser console
      * @property {boolean} [ascendingOrder=true]
      *      Vertical order of digits (from top): ascending (true) or descending (false)
      * @property {boolean} [showAllDigits=false]
@@ -431,7 +403,6 @@
         this.counterClassName = 'catCounter';
         this.digitClassName = 'catCounter__decimalPlace';
         this.listenerInterval = 500;
-        this._useTimeProfiler = false;
         this.ascendingOrder = true;
         this.showAllDigits = false;
         /* Callbacks */

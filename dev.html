@@ -94,7 +94,7 @@
 </div>
 
     <div class="container-3">
-        <span class="counter catCounter">
+        <span class="counter catCounter animated">
             <span class="catCounter__decimalPlace">
                 <span>0 1 2 3 4 5 6 7 8 9 0</span>
             </span>
@@ -129,11 +129,13 @@
     </div>
 
     <script type="text/javascript">
+        var tStart = new Date();
         $('.container .counter').catCounter({
             showAllDigits: true,
-            _useTimeProfiler: true,
             ascendingOrder: false
         });
+        var tEnd = new Date();
+        console.log('External time counter: ' + parseInt(tEnd - tStart));
     </script>
 </body>
 </html>
