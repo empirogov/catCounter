@@ -205,6 +205,27 @@
 
 
     /**
+     * Returns array of decimal digit's values for given values
+     * @param {Number} value
+     * @return {Array}
+     * @private
+     */
+    catCounter.prototype._parseDigits = function (value) {
+        var newValue = parseInt(value),
+            digits = ['0'];
+        if ((newValue === 0) || (newValue && newValue.toString().length)) {
+            var valueStr = newValue.toString(),
+                totalDigits = valueStr.length;
+            for (var digit = totalDigits; digit > 0; digit--) {
+                digits[digit] = valueStr.charAt(digit-1);
+            }
+        }
+        return digits;
+    };
+    /****************************************************************************************************************/
+
+
+    /**
      * Callback, executed in case of parent counter object value changed ('catCounter.valueChanged' event)
      * @param {Event} e 'catCounter.valueChanged' event object
      */
@@ -253,7 +274,7 @@
     catCounter.prototype.refreshStyles = function () {
         // TODO: Perfomance testing and code refactoring
         this._css = this._detectCSSProperties();
-        console.log(this._css);
+        //console.log(this._css);
 
         var newHeight = this._css.height,
             newWidth = this._css.width;
@@ -318,6 +339,23 @@
             _useCSS: useCSS,
             _usePrefix: usePrefix
         };
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Sets new value for whole counter instance
+     * @param {Number} value
+     * @return {boolean}
+     */
+    catCounter.prototype.setValue = function (value) {
+        var newValue = parseInt(this.value);
+        if (newValue) {
+            this.value = newValue;
+            return true;
+        } else {
+            return false;
+        }
     };
     /****************************************************************************************************************/
 
