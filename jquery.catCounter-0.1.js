@@ -195,14 +195,16 @@
 
 
     /**
-     * Returns array of decimal digit's values for given values
+     * Returns array of decimal digit's values for given value
+     * (i.e. returns [2,3,4] for passed value '432')
      * @param {Number} value
      * @return {Array}
      * @private
      */
     catCounter.prototype._parseDigits = function (value) {
+        // TODO: check if passed value is valid real number
         var newValue = parseInt(value),
-            digits = ['0'];
+            digits = [];
         if ((newValue === 0) || (newValue && newValue.toString().length)) {
             var valueStr = newValue.toString(),
                 totalDigits = valueStr.length;
