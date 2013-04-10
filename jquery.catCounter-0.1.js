@@ -6,7 +6,6 @@
 
 
 // TODO: check, if user browser has console and supports console.log
-// TODO: [MAJOR] Fix line-breaking behavior of initialized counter instance
 
 /**
  * IIFE, expanding prototype of jQuery with catCounter method
@@ -50,15 +49,27 @@
 
 
     /**
-     * Sets {@link catCounterDigit#_value} property of given instance of {@link catCounterDigit} class,
-     * and (which isn't implemented yet) runs appropriate animation routine
+     * Sets {@link catCounterDigit#_value} property of given instance of {@link catCounterDigit} class if any
+     * convertible to float parameter is specified
+     */
+    catCounterDigit.prototype.setValue = function (value) {
+        if (catCounter.catParseFloat(value) !== false) {
+            this._value = value;
+            return true;
+        }
+        return false;
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Sets {@link catCounterDigit#_value} property of given instance of {@link catCounterDigit} class if any
+     * convertible to float parameter is specified and returns {@link catCounterDigit#_value} property value otherwise.
      * @param {Number} value New value of {@link catCounterDigit#_value} property
      * @description
      */
-    catCounterDigit.prototype.setValue = function (value) {
-        // TODO: Unite getValue and setValue methods with optional newValue parameter
-        // TODO: Implement animation
-        this._value = value;
+    catCounterDigit.prototype.changeValue = function (value) {
+        // TODO: if no value passed - get if valid passed - set, if invalid passed - exception
     };
     /****************************************************************************************************************/
 
@@ -335,6 +346,22 @@
         } else {
             return false;
         }
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Returns float number value of passed param if it is convertible to float, and boolean false otherwise.
+     * @static
+     * @param value
+     * @return {*}
+     */
+    catCounter.catParseFloat = function (value) {
+        var parsedValue = parseFloat(value);
+        if ( (arguments.length >= 1) && ((parsedValue === 0) || (parsedValue) ) ) {
+            return value;
+        }
+        return false;
     };
     /****************************************************************************************************************/
 
