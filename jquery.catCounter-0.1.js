@@ -21,6 +21,7 @@
      * Represents one decimal digit of catCounter
      * @class
      * @name catCounterDigit
+     * @extends Node
      * @property {Number} _value
      *      Current value
      * @property {catCounter} parent
@@ -35,6 +36,16 @@
         // TODO: Implement links with previous and next digits
         this._value = value;
         this.parent = parent;
+
+
+        this._html = document.createElement('span');
+
+        this._html.className = this.parent.options.digitClassName;
+
+        var element = document.createElement('span');
+
+        element.innerText = this.parent.options.allDigits;
+        this._html.appendChild(element);
     };
     /****************************************************************************************************************/
 
@@ -69,7 +80,7 @@
      * @description
      */
     catCounterDigit.prototype.changeValue = function (value) {
-        // TODO: if no value passed - get if valid passed - set, if invalid passed - exception
+        // TODO: implement catCounterDigit.changeValue method: no value passed - get, valid passed - set, invalid passed - exception
     };
     /****************************************************************************************************************/
 
@@ -100,7 +111,19 @@
         this._parent = parent;
         this._$parent = $(parent);
 
-        this._html = this._buildDOM();
+
+        this._html = document.createElement('span');
+        this._html.className = this._parent.className + ' ' + this.options.counterClassName;
+
+        var parsedDigits = this._parseDigits(this._parent.innerText);
+        this.digits = [];
+        for (var d = 0; d < parsedDigits.length; d ++) {
+            // TODO: implement addDigit method for catCounter object
+            // this.addDigit();
+            var digit = new catCounterDigit(this, 0);
+            this._html.appendChild(digit._html);
+            this.digits.push(digit);
+        }
 
         this.refreshStyles();
 
@@ -108,61 +131,6 @@
             .after(this._html);
 
         this._setChangeListener();
-    };
-    /****************************************************************************************************************/
-
-
-    /**
-     * Create and return DOM-hierarchy for given counter instance. Written without using of jQuery.
-     * @return {HTMLElement} Detached HTMLElement, containing all DOM structure for one instance of counter
-     */
-    catCounter.prototype._buildDOM = function () {
-        var counter = document.createElement('span'),
-            allDigits = (this.options.ascendingOrder) ? '0 1 3 4 5 6 7 8 9 0' : '0 9 8 7 6 5 4 3 2 1 0';
-
-        counter.className = this._parent.className + ' ' + this.options.counterClassName;
-        var text = this._parent.innerText;
-        for (var d = 0; d < text.length; d ++) {
-            var digit = document.createElement('span');
-            digit.className = this.options.digitClassName;
-
-            var element = document.createElement('span');
-
-            element.innerText = allDigits;
-            digit.appendChild(element);
-
-            counter.appendChild(digit);
-        }
-        return counter;
-    };
-    /****************************************************************************************************************/
-
-
-    /**
-     * Create and return DOM-hierarchy for single counter instance with given parameters.
-     * @description
-     *      Does exactly same things as {@link catCounter#_buildDOM}. Only difference is using of jQuery.
-     *      Not surprisingly, pure JS code works up to 30% faster.
-     * @return {jQuery}
-     *      Detached HTMLElement, wrapped in jQuery object, which contains all DOM structure, required by catCounter
-     *      with given options
-     */
-    catCounter.prototype._$buildDOM = function () {
-        var $catCounter = $('<span/>', {
-                class: this._parent.className + ' ' + this.options.counterClassName
-            }),
-            digitsCount = this._parent.innerText.length,
-            allDigits = (this.options.ascendingOrder) ? '0 1 3 4 5 6 7 8 9 0' : '0 9 8 7 6 5 4 3 2 1 0';
-
-        for (var d = --digitsCount; d >= 0; d--) {
-            var $digit = $('<span/>', {
-                class: this.options.digitClassName,
-                'data-digit': d
-            });
-            $digit.append('<span>' + allDigits + '</span>')
-            $catCounter.append($digit);
-        }
-        return $catCounter.get(0);
     };
     /****************************************************************************************************************/
 
@@ -196,7 +164,7 @@
 
     /**
      * Returns array of decimal digit's values for given value
-     * (i.e. returns [2,3,4] for passed value '432')
+     * (i.e. returns [4, 3, 2] for passed value '432')
      * @param {Number} value
      * @return {Array}
      * @private
@@ -213,6 +181,25 @@
             }
         }
         return digits;
+    };
+    /****************************************************************************************************************/
+
+
+    /**
+     * Executes routine for catCounter value changing from oldValue to newValue.
+     * New value is parsed to digits, then, if necessary, new digits created and for each of them required loops number
+     * is calculated and passed to according animation method.
+     * @param {Number} value New value for catCounter instance
+     * @returns {Boolean} true or false, based on validity of passed value
+     */
+    catCounter.prototype.changeValueTo = function (value) {
+        // TODO: implement catCounter.changeValueTo method
+        // parse digits:
+        var newValueDigits = this._parseDigits(value);
+        // create digits
+        // if ()
+        // calc animation loops count
+        // change digits (includes animation start)
     };
     /****************************************************************************************************************/
 
@@ -381,6 +368,7 @@
         var _defaults = new $.fn.catCounter._defaults();
 
         options = $.extend({}, _defaults, options, catCounter.checkCSSSupport());
+        options.allDigits = (options.ascendingOrder) ? '0 1 3 4 5 6 7 8 9 0' : '0 9 8 7 6 5 4 3 2 1 0';
         //console.log(options);
 
         return $(this).each(function () {
