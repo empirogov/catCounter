@@ -115,7 +115,7 @@
         this._html = document.createElement('span');
         this._html.className = this._parent.className + ' ' + this.options.counterClassName;
 
-        var parsedDigits = this._parseDigits(this._parent.innerText);
+        var parsedDigits = this._parseDigits($.trim(this._parent.textContent));
         this.digits = [];
         for (var d = 0; d < parsedDigits.length; d ++) {
             // TODO: implement addDigit method for catCounter object
@@ -165,7 +165,7 @@
     /**
      * Returns array of decimal digit's values for given value
      * (i.e. returns [4, 3, 2] for passed value '432')
-     * @param {Number} value
+     * @param {String||Number} value
      * @return {Array}
      * @private
      */
@@ -423,9 +423,9 @@
         this.ascendingOrder = true;
         this.showAllDigits = false;
         /* Callbacks */
-        this.onBeforeValueChanged = function (e) {return this};
-        this.onAfterValueChanged = function (e) {return this};
-    }
+        this.onBeforeValueChanged = function (e) {return !!e};
+        this.onAfterValueChanged = function (e) {return !!e};
+    };
     /****************************************************************************************************************/
 
 
@@ -476,7 +476,7 @@
             catCounterFound = catCounterFound || (this.cCounter);
         });
         return catCounterFound;
-    }
+    };
     /****************************************************************************************************************/
 
 })(jQuery, this);
