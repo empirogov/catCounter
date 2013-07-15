@@ -115,12 +115,13 @@
         this._html = document.createElement('span');
         this._html.className = this._parent.className + ' ' + this.options.counterClassName;
 
-        var parsedDigits = this._parseDigits($.trim(this._parent.textContent));
+        var parsedDigits = this._parseDigits(this._parent.textContent);
         this.digits = [];
         for (var d = 0; d < parsedDigits.length; d ++) {
             // TODO: implement addDigit method for catCounter object
             // this.addDigit();
             var digit = new catCounterDigit(this, 0);
+            // TODO: CRITICAL! Fix FF digit creation routine
             this._html.appendChild(digit._html);
             this.digits.push(digit);
         }
@@ -170,17 +171,33 @@
      * @private
      */
     catCounter.prototype._parseDigits = function (value) {
-        // TODO: check if passed value is valid real number
-        var newValue = parseInt(value),
-            digits = [];
-        if ((newValue === 0) || (newValue && newValue.toString().length)) {
-            var valueStr = newValue.toString(),
-                totalDigits = valueStr.length;
-            for (var digit = totalDigits; digit > 0; digit--) {
-                digits[digit] = valueStr.charAt(digit-1);
+        // TODO: CRITICAL! Fix x-large integer values parsing
+        // TODO: Implement float values parsing
+        // TODO: Refactor code to remove magical toFixed calls (?)
+        var digits = new Array();
+        value = parseInt($.trim(value));
+        if ($.isNumeric(value)) {
+            var newValue = value.toFixed(0)*10;
+            for (var d=1; (newValue /= 10) >= 1; d++) {
+                digits.push((newValue % 10).toFixed(0));
+            }
+        } else {
+            // TODO: fix x-large values parsing
+            var newValue = parseInt(value);
+            if ((newValue === 0) || (newValue && String(newValue).length)) {
+                var valueStr = String(newValue),
+                    totalDigits = valueStr.length;
+                for (var digit = totalDigits; digit > 0; digit--) {
+                    digits.push(valueStr.charAt(digit-1));
+                }
             }
         }
-        return digits;
+        // TODO: Optimise code
+        var digits2 = new Array();
+        for (var i = digits.length-1; i >= 0; i--) {
+            digits2.push(digits[i]);
+        }
+        return digits2.length ? digits2 : ['0'];
     };
     /****************************************************************************************************************/
 
