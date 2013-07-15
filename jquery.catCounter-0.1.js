@@ -458,8 +458,9 @@
      * @return {boolean} True, if any characters, except numerals is present in _parent
      * */
     Element.prototype.ccIsParentValid = function () {
-        var notNumerals = new RegExp('[^\\d]');
-        return !notNumerals.test(this.innerText);
+        var notNumerals = new RegExp('[^\\d]'),
+            text = $.text(this);
+        return !notNumerals.test($.trim(text));
     };
     /****************************************************************************************************************/
 
